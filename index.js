@@ -1,38 +1,57 @@
 import "dotenv/config";
 import TelegramBot from "node-telegram-bot-api";
-import { guardarEstado, leerEstados, obtenerEstadoUsuario } from "./db.js";
 import { MESSAGES } from "./informacion/mensajes.js";
-import { GENERAL_OPTIONS } from "./informacion/mensajes.js";
 
+import { delKey, getKey, setKey } from "./functions/redis.js";
 
 const cloud_bot = new TelegramBot(process.env.TOKEN_TELEGRAM_BOT, {
   polling: true,
 });
 
-cloud_bot.on("message", (msg) => {
+cloud_bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text;
-  let step1 = obtenerEstadoUsuario("step1");
-  let step2 = obtenerEstadoUsuario("step2");
+
+  let message = await getKey(chatId, "last-message");
+  const step1 = await getKey(chatId, "step1");
+  const step2 = await getKey(chatId, "step2");
+  const step3 = await getKey(chatId, "step3");
+
   if (!step1) {
-    const response = getState(0, text, GENERAL_OPTIONS);
-    if (!response) cloud_bot.sendMessage(chatId, MESSAGES.text);
-    else {
-      guardarEstado("step1", response);
-      step1 = obtenerEstadoUsuario("step1");
-      return cloud_bot.sendMessage(chatId, MESSAGES["opciones"][step1].text);
-    }
+    await setKey(chatId, "step1", "success");
+    await setKey(chatId, "last-message", MESSAGES.text);
+    message = await getKey(chatId, "last-message");
+    return cloud_bot.sendMessage(chatId, message);
   }
 
-  if (!step2) {
-    return cloud_bot.sendMessage(chatId, MESSAGES["opciones"][step1]["opciones"][parseInt(text) - 1].text);
+  if (!step2 && !isNaN(parseInt(text))) {
+    await setKey(chatId, "step2", text);
+    await setKey(
+      chatId,
+      "last-message",
+      MESSAGES["opciones"][parseInt(text) - 1]["info"]["text"],
+    );
+    message = await getKey(chatId, "last-message");
+    return cloud_bot.sendMessage(chatId, message);
+  }
+
+  if (!step3 && !isNaN(parseInt(text))) {
+    await setKey(
+      chatId,
+      "last-message",
+      MESSAGES["opciones"][parseInt(step2) - 1]["info"]["opciones"][
+        parseInt(text) - 1
+      ]["text"],
+    );
+    message = await getKey(chatId, "last-message");
+
+    if (
+      !MESSAGES["opciones"][parseInt(step2) - 1]["info"]["opciones"][
+        parseInt(text) - 1
+      ]["opciones"]
+    ) {
+      await delKey(chatId);
+    }
+    return cloud_bot.sendMessage(chatId, message);
   }
 });
-
-function getState(step, num, arr) {
-  if (step == 0) {
-    if (isNaN(parseInt(num))) return undefined;
-    if (num > arr.length) return undefined;
-    return arr[parseInt(num) - 1].nom;
-  }
-}
