@@ -1,7 +1,6 @@
 node_modules
 .env
-estados.json
 *.txt
-db.js
 ./functions/getState.js
 services
+detodo

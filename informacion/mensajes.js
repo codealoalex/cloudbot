@@ -58,6 +58,21 @@ export const MESSAGES = {
       nom: "lic",
       info: {
         text: "1. Primera vez.\n2. Duplicado.\n3. Renovación.\n4. Ascenso.",
+        opciones:[
+          {
+            text:"1. Cédula de identidad digital o física vigente (no es necesario fotocopia).\n2. Certificado médico (centros SEGIP habilitados).\n3. Certiicado de antecedentes policiales, emitidos por plataforma CUDAP: F.E.L.C.C, F.E.L.C.N, D.N.T.T.S.V\n4. Certificado de aprobación de habilidades de conducción (otorgrado por centros de capacitación registrados por el SEGIP).\n5. Constancia de depósito bancario:\n* Categoría P y A: Bs 225\n* Categoria M y T: Bs 80",
+            opciones:null
+          },{
+            text:"1. Cédula de identidad digital o física vigente (no es necesario fotocopia).\n2. Formulario de denuncia de  pérdida o extravío (recabar en oficinas de SEGIP).\n3. Constancia de depósito bancario:\n* Categoría P, A, B y C: Bs 160\n* Categoria M y T: Bs 80",
+            opciones:null
+          },{
+            text:"1. Cédula de identidad digital o física vigente (no es necesario fotocopia).\n2. Certificado médico (centros SEGIP habilitados).\n3. Certiicado de antecedentes policiales, emitidos por plataforma CUDAP: D.N.T.T.S.V\n4. Constancia de depósito bancario:\n* Categoría P y A: Bs 225\n* Categoria M y T: Bs 80\n\nIMPORTANTE: Si no renovó su licencia para conducir en 5 años y un día, debe presentar el certificado de aprobación de habilidades de conducción otorgado por centros de capacitación registrados por el SEGIP",
+            opciones:null
+          },{
+            text:"1. Cédula de identidad digital o física vigente (no es necesario fotocopia).\n2. Certificado médico (centros SEGIP habilitados).\n3. Certiicado de antecedentes policiales, emitidos por plataforma CUDAP: D.N.T.T.S.V\n4. Certificado de aprobación de habilidades de conducción (otorgrado por centros de capacitación registrados por el SEGIP).\n5. Constancia de depósito bancario:\n* Categoría B y C: Bs 225",
+            opciones:null
+          }
+        ]
       },
     },
   ],

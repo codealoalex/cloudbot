@@ -1,21 +1,22 @@
-import dns from 'node:dns';
-dns.setDefaultResultOrder('ipv4first');
-
 import "dotenv/config";
 import TelegramBot from "node-telegram-bot-api";
 import { MESSAGES } from "./informacion/mensajes.js";
 
 import { delKey, getKey, setKey } from "./functions/redis.js";
 
+import { getValues, getState } from "./functions/getState.js";
+
 const cloud_bot = new TelegramBot(process.env.TOKEN_TELEGRAM_BOT, {
   polling: true,
   request: {
     agentOptions: {
       keepAlive: true,
-      family: 4
-    }
-  }
+      family: 4,
+    },
+  },
 });
+
+let res, arr_param;
 
 cloud_bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
@@ -30,37 +31,70 @@ cloud_bot.on("message", async (msg) => {
     await setKey(chatId, "step1", "success");
     await setKey(chatId, "last-message", MESSAGES.text);
     message = await getKey(chatId, "last-message");
-    return cloud_bot.sendMessage(chatId, message);
+    return cloud_bot.sendMessage(
+      chatId,
+      `${message}\n\nDigite el número de una de las opciones o escriba la opción.`,
+    );
   }
 
-  if (!step2 && !isNaN(parseInt(text))) {
-    await setKey(chatId, "step2", text);
+  if (!step2) {
+    res = parseInt(text);
+    if (isNaN(parseInt(text))) {
+      arr_param = getValues(step1);
+      res = getState(text, arr_param);
+    }
+    if (res < 0 || res > 3) {
+      delKey(chatId);
+      return cloud_bot.sendMessage(
+        chatId,
+        "Opción incorrecta, escriba cualquier caracter para ver nuevamente las opciones",
+      );
+    }
+    await setKey(chatId, "step2", res);
     await setKey(
       chatId,
       "last-message",
-      MESSAGES["opciones"][parseInt(text) - 1]["info"]["text"],
+      MESSAGES["opciones"][res - 1]["info"]["text"],
     );
     message = await getKey(chatId, "last-message");
-    return cloud_bot.sendMessage(chatId, message);
+    return cloud_bot.sendMessage(
+      chatId,
+      `${message}\n\nDigite el número de una de las opciones o escriba la opción.`,
+    );
   }
 
-  if (!step3 && !isNaN(parseInt(text))) {
+  if (!step3) {
+    res = parseInt(text);
+    if (isNaN(parseInt(text))) {
+      arr_param = getValues(step2);
+      res = getState(text, arr_param);
+    }
+    if (res < 0) {
+      delKey(chatId);
+      return cloud_bot.sendMessage(
+        chatId,
+        "Opción incorrecta, escriba cualquier caracter para ver nuevamente las opciones",
+      );
+    }
     await setKey(
       chatId,
       "last-message",
-      MESSAGES["opciones"][parseInt(step2) - 1]["info"]["opciones"][
-        parseInt(text) - 1
-      ]["text"],
+      MESSAGES["opciones"][parseInt(step2) - 1]["info"]["opciones"][res - 1][
+        "text"
+      ],
     );
     message = await getKey(chatId, "last-message");
 
     if (
-      !MESSAGES["opciones"][parseInt(step2) - 1]["info"]["opciones"][
-        parseInt(text) - 1
-      ]["opciones"]
+      !MESSAGES["opciones"][parseInt(step2) - 1]["info"]["opciones"][res - 1][
+        "opciones"
+      ]
     ) {
       await delKey(chatId);
     }
-    return cloud_bot.sendMessage(chatId, message);
+    return cloud_bot.sendMessage(
+      chatId,
+      `${message}\n\nSí desea otro tipo de información, escriba cualquier caracter`,
+    );
   }
 });
