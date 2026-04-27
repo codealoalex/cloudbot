@@ -1,3 +1,6 @@
+import dns from 'node:dns';
+dns.setDefaultResultOrder('ipv4first');
+
 import "dotenv/config";
 import TelegramBot from "node-telegram-bot-api";
 import { MESSAGES } from "./informacion/mensajes.js";
@@ -6,6 +9,12 @@ import { delKey, getKey, setKey } from "./functions/redis.js";
 
 const cloud_bot = new TelegramBot(process.env.TOKEN_TELEGRAM_BOT, {
   polling: true,
+  request: {
+    agentOptions: {
+      keepAlive: true,
+      family: 4
+    }
+  }
 });
 
 cloud_bot.on("message", async (msg) => {
