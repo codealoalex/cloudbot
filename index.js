@@ -1,11 +1,20 @@
+import dns from 'node:dns'
+
 import "dotenv/config";
+import express from 'express';
+
 import TelegramBot from "node-telegram-bot-api";
 import { MESSAGES } from "./informacion/mensajes.js";
-
 import { delKey, getKey, setKey } from "./functions/redis.js";
-
 import { getValues, getState } from "./functions/getState.js";
 
+dns.setDefaultResultOrder('ipv4first');
+
+const app = express();
+const PORT = process.env.PORT;
+app.listen(PORT,()=>{
+  console.log("Servidor corriendo en el puerto:",PORT);
+})
 const cloud_bot = new TelegramBot(process.env.TOKEN_TELEGRAM_BOT, {
   polling: true,
   request: {
@@ -98,3 +107,11 @@ cloud_bot.on("message", async (msg) => {
     );
   }
 });
+
+// Manejo de errores
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+cloud_bot.on("polling_error", (err) => console.log("Error de Polling:", err.message));

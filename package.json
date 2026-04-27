@@ -1,18 +1,20 @@
 {
-  "name": "agent-backend",
+  "name": "cloudbot-segip",
   "version": "1.0.0",
-  "description": "",
+  "description": "Chatbot en Telegram dedicado a resolver dudas de tramites en el SEGIP",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "dev": "node --watch index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "cloudsitos",
   "license": "ISC",
   "type": "module",
   "dependencies": {
     "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "node-telegram-bot-api": "^0.67.0",
     "redis": "^5.12.1"
   }
